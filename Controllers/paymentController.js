@@ -43,7 +43,7 @@ const webHook = async (req, res, next)=>{
     } catch (error) {
         console.log(error)
         next(error);       
-        return res.status(400).send(`Webhook Error: ${err.message}`)
+        return res.status(400).send(`Webhook Error: ${error.message}`)
     }
 
      if (event.type === 'payment_intent.succeeded') {
@@ -52,7 +52,7 @@ const webHook = async (req, res, next)=>{
         
         // Update order status in your database
         await Order.updateOne(
-        { user: userId, status: 'pending' },
+        { user: userId, status: ('pending', 'confirmed') },
         { $set: {paymentStatus: 'paid', status: 'paid', paymentId: paymentIntent.id } }
         );
     }

@@ -29,7 +29,7 @@ app.use("/api/users", userRouter)
 app.use("/api/food", menuRouter)
 app.use("/api/order", orderRouter)
 app.use("/api/payment", paymentRouter)
-
+app.use(express.json())
 
 app.all("/{*any}", (req, res) => {
     res.json(`${req.method} ${req.originalUrl} is not an endpoint on this server.`)

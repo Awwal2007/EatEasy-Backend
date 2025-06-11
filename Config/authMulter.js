@@ -7,7 +7,7 @@ const storage = new CloudinaryStorage({
     params: {
         folders: "/EatEasy-products",
         allowedFormats: ['png','jpg','gif'], // optional 
-        transformation : [{width: 500, height:500 }] //  resize image optional
+        // transformation : [{width: 500, height:500 }] //  resize image optional
     }
 })
 

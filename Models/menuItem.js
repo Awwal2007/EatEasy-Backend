@@ -5,7 +5,8 @@ const menuItemSchema = new mongoose.Schema({
   description: { type: String },
   price: { type: Number, required: true },
   category: { type: String, enum:["chew", "swallow"], default: "chew" },
-  productImage: { type: String },
+  image: { type: String, required: true },
+  createdBy: {type: String, require: true}
 }, { timestamps: true });
 
 module.exports = mongoose.model('MenuItem', menuItemSchema);

@@ -33,7 +33,14 @@ const getAllFoods = async (req, res, next)=>{
 const postFood = async (req, res, next)=>{
     const {name, description, price, category, image} = req.body
     try {
-        const food = await menuItem.create({...req.body,})
+        
+        if (!req.file || !req.file.path) {
+            return res.status(400).json({
+                status: "error",
+                message: "Image upload failed or missing",
+            });
+        }
+        const food = await menuItem.create({...req.body, image: req.file.path, createdBy: req.user.id})
 
         if(!food){
             return res.status(404).json({
