@@ -34,9 +34,33 @@ const createPayment = async (req, res, next)=>{
 }
 
 const webHook = async (req, res, next)=>{
-    
+    const sig = req.headers['stripe-signature'];
+    const endpointSecret = process.env.endpointSecret;
+    let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    } catch (error) {
+        console.log(error)
+        next(error);       
+        return res.status(400).send(`Webhook Error: ${err.message}`)
+    }
+
+     if (event.type === 'payment_intent.succeeded') {
+        const paymentIntent = event.data.object;
+        const userId = paymentIntent.metadata.userId;
+        
+        // Update order status in your database
+        await Order.updateOne(
+        { user: userId, status: 'pending' },
+        { $set: {paymentStatus: 'paid', status: 'paid', paymentId: paymentIntent.id } }
+        );
+    }
+
+    res.json({ received: true });
 }
 
 module.exports = {
     createPayment,
+    webHook
 }

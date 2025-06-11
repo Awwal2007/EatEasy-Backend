@@ -1,10 +1,11 @@
 const express = require("express")
 const paymentRouter = express.Router()
 
-const {createPayment} = require('../Controllers/paymentController')
+const {createPayment, webHook} = require('../Controllers/paymentController')
 const isLoggedIn = require("../Middlewares/isLoggedIn")
 
-paymentRouter.post("/create-payment-intent", isLoggedIn, createPayment)
+paymentRouter.post("/create-payment", isLoggedIn, createPayment)
+paymentRouter.post("/webhook", isLoggedIn, webHook)
 
 
 module.exports = paymentRouter
