@@ -101,7 +101,7 @@ const login = async (req, res, next)=>{
             })
         }
 
-        const accessToken = jwt.sign({id: user._id, email: user.email}, process.env.jwt_secret, {
+        const accessToken = jwt.sign({id: user._id, email: user.email, name: user.name}, process.env.jwt_secret, {
             expiresIn: process.env.jwt_exp
         })        
 
