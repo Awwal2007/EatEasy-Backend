@@ -26,13 +26,13 @@ const getAllOrders = async (req, res, next)=>{
     try {
         const orders = await orderModel.find()
         if(!orders){
-            res.status(404).json({
+            return res.status(404).json({
                 status: "error",
                 message: "failed to load all orders"
             })
         }
         if(orders.length === 0){
-            res.status(404).json({
+            return res.status(404).json({
                 status: "error",
                 message: "no orders in the database"
             })
@@ -53,16 +53,16 @@ const getAllOrders = async (req, res, next)=>{
 const getMyOrders = async(req, res, next)=>{
     try {
         const myOrders = await orderModel.find({user: req.user}).populate("items.menuItem");
-        res.json(myOrders)
+        // res.json(myOrders)
         if(!myOrders){
-            res.status(404).json({
+            return res.status(404).json({
                 status: "error",
                 message: "failed to load your orders"
             })
         }
 
         if(myOrders.length === 0){
-            res.status(404).json({
+            return res.status(404).json({
                 status: "error",
                 message: "no orders in the database"
             })
