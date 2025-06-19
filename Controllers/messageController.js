@@ -68,8 +68,31 @@ const getAUsersMessages = async (req, res, next)=>{
         next(error)
     }
 }
+const createAdminMessage = async (req, res , next)=> {
+    const { userId, message } = req.body;
+
+    if (!message || !userId) {
+        return res.status(400).json({ status: 'error', message: 'User ID and message required.' });
+    }
+
+    try {
+        const reply = new Message({
+            sender: 'admin',
+            text: message,
+            userId
+        });
+
+        await reply.save();
+
+        res.status(200).json({ status: 'success', message: 'Reply sent successfully.' });
+    } catch (error) {
+        console.log(error); 
+        res.status(500).json({ status: 'error', message: 'Failed to send reply.' });       
+    }
+}
 module.exports = {
     createMessage,
     getAllMessages,
-    getAUsersMessages
+    getAUsersMessages,
+    createAdminMessage
 }
