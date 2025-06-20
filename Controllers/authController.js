@@ -111,7 +111,8 @@ const login = async (req, res, next)=>{
             accessToken
         })
     } catch (error) {
-        console.log(error);  
+        console.log(error);
+        res.send(error)
         next(error) 
     }
 }

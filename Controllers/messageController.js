@@ -1,98 +1,111 @@
-// const { Admin } = require("mongodb")
-const messageModel = require("../Models/message")
+const Message = require("../Models/message");
 
-const createMessage = async (req, res, next)=> {
-    const {} = req.body
-    try {
-        const message = await messageModel.create({...req.body, sender: req.user})
-        if(!message){
-            return res.status(404).json({
-                status: "error",
-                message: "Failed to create message"
-            })
-        }
+// Create a new user message
+const createUserMessage = async (req, res, next) => {
+  try {
+    const messageData = {
+      ...req.body,
+      sender: req.user?._id,
+      user: req.user?._id
+    };
 
-        res.status(201).json({
-            status: "success",
-            message: "Order Created Successfully",
-            message
-        })
-    } catch (error) {
-        console.log(error);
-        next(error)
-    }
-}
+    const newMessage = await Message.create(messageData);
 
-const getAllMessages = async (req, res, next)=>{
-    try {
-        const messages = await messageModel.find()
-        if(!messages){
-            return res.status(404).json({
-                status: "error",
-                message: "There is no message"
-            })
-        }
-        res.status(202).json({
-            status: "success",
-            message: "messages fetched successfully",
-            messages
-        })
-    } catch (error) {
-        console.log(error);
-        next(error)
-    }
-}
+    res.status(201).json({
+      status: "success",
+      message: "Message sent successfully",
+      data: newMessage
+    });
+  } catch (error) {
+    console.error("Create User Message Error:", error);
+    next(error);
+  }
+};
 
-const getAUsersMessages = async (req, res, next)=>{
-    try {
-        const messages = await messageModel.find({user: req.body});
-        if(!messages){
-            return res.status(404).json({
-                status: "error",
-                message: "failed to load your messages"
-            })
-        }
-        if(messages.length === 0){
-            return res.status(401).json({
-                status: "null",
-                message: "no message yet, send a new message"
-            })
-        }
-        res.status(201).json({
-            status: "success",
-            message: "your message has been loaded successfully",
-            messages
-        })
-    } catch (error) {
-        console.log(error);
-        next(error)
-    }
-}
-const createAdminMessage = async (req, res , next)=> {
-    const { userId, message } = req.body;
+// Get all messages (admin or support role ideally)
+const getAllMessages = async (req, res, next) => {
+  try {
+    const messages = await Message.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      status: "success",
+      message: "All messages fetched successfully",
+      data: messages
+    });
+  } catch (error) {
+    console.error("Get All Messages Error:", error);
+    next(error);
+  }
+};
+
+// Get messages for the logged-in user
+const getUserMessages = async (req, res, next) => {
+  try {
+    const userId = req.user?._id;
+    const messages = await Message.find({ user: userId }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      status: "success",
+      message: messages.length > 0 ? "Your messages" : "No messages yet",
+      data: messages
+    });
+  } catch (error) {
+    console.error("Get User Messages Error:", error);
+    next(error);
+  }
+};
+
+// Get messages for the admin (sent replies)
+const getAdminMessages = async (req, res, next) => {
+  try {
+    const adminId = req.user?._id;
+    const messages = await Message.find({ admin: adminId }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      status: "success",
+      message: messages.length > 0 ? "Admin messages loaded" : "No replies sent yet",
+      data: messages
+    });
+  } catch (error) {
+    console.error("Get Admin Messages Error:", error);
+    next(error);
+  }
+};
+
+// Admin replies to a user message
+const replyToUserMessage = async (req, res, next) => {
+  try {
+    const { message, userId } = req.body;
 
     if (!message || !userId) {
-        return res.status(400).json({ status: 'error', message: 'User ID and message required.' });
+      return res.status(400).json({
+        status: "error",
+        message: "Both message and userId are required"
+      });
     }
 
-    try {
-        const reply = new Message({
-            sender: 'admin',
-            text: message,
-            userId
-        });
+    const reply = await Message.create({
+      message,
+      user: userId,
+      admin: req.user?._id,
+      sender: req.user?._id
+    });
 
-        await reply.save();
+    res.status(201).json({
+      status: "success",
+      message: "Reply sent successfully",
+      data: reply
+    });
+  } catch (error) {
+    console.error("Reply to User Message Error:", error);
+    next(error);
+  }
+};
 
-        res.status(200).json({ status: 'success', message: 'Reply sent successfully.' });
-    } catch (error) {
-        console.log(error); 
-        res.status(500).json({ status: 'error', message: 'Failed to send reply.' });       
-    }
-}
 module.exports = {
-    createMessage,
-    getAllMessages,
-    getAUsersMessages,
-    createAdminMessage
-}
+  createUserMessage,
+  getAllMessages,
+  getUserMessages,
+  getAdminMessages,
+  replyToUserMessage
+};
