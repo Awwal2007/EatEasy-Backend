@@ -10,6 +10,7 @@ const menuRouter = require('./Routes/menuRouter');
 const orderRouter = require('./Routes/orderRouter');
 const errorHandler = require("./Middlewares/errorHandler");
 const paymentRouter = require('./Routes/paymentRouter');
+const sellerRouter = require('./Routes/sellerRouter');
 
 app.use(cors())
 app.use(express.json())
@@ -29,6 +30,7 @@ app.use("/api/users", userRouter)
 app.use("/api/food", menuRouter)
 app.use("/api/order", orderRouter)
 app.use("/api/payment", paymentRouter)
+app.use("/api/seller", sellerRouter)
 app.use(express.json())
 
 app.all("/{*any}", (req, res) => {

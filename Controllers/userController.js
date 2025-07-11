@@ -1,6 +1,6 @@
 const userModel = require("../Models/user")
 
-const getAllUsers =async (req, res)=>{
+const getAllUsers = async (req, res)=>{
     try {
         const users = await userModel.find() // return all users
         if(!users){
