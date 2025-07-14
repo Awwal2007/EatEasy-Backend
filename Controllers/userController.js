@@ -46,7 +46,7 @@ const getUserById = async (req, res, next)=>{
 // findByIdAndUpdate(id, body)
 // findByIdAndDelete(id)
 
-const getUserByQuery = async (req, res)=>{
+const getUserByQuery = async (req, res, next)=>{
     const {email} = req.query
     try {
         const user = await userModel.findOne({email})
@@ -64,10 +64,11 @@ const getUserByQuery = async (req, res)=>{
         })
     } catch (error) {
         console.log(error)
+        next(error)
     }
 }
 
-const updateUser = async (req, res)=>{
+const updateUser = async (req, res, next)=>{
     const {id} = req.params
     try {
         const updatedUser = await userModel.findByIdAndUpdate(id, req.body)
@@ -85,10 +86,11 @@ const updateUser = async (req, res)=>{
         })
     } catch (error) {
         console.log(error)
+        next(error)
     }
 } 
 
-const deleteUser = async (req, res)=>{
+const deleteUser = async (req, res, next)=>{
     const {id} = req.params
     try{
         // check if user exist
@@ -106,6 +108,7 @@ const deleteUser = async (req, res)=>{
         })
     } catch(error) {
         console.log(error)
+        next(error)
     }
 }
 

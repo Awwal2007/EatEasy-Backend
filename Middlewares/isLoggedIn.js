@@ -18,6 +18,7 @@ const isLoggedIn =  async (req, res, next)=>{
     const decoded = jwt.verify(token, process.env.jwt_secret)
     // find the user that the token was generated for
     const user = await UserModel.findById(decoded.id)
+
     if(!user){
         return res.status(404).json({
             status: "error",
@@ -26,6 +27,11 @@ const isLoggedIn =  async (req, res, next)=>{
     }
 
     req.user = user
+    // console.log(user);
+    // console.log(decoded);
+    console.log(req.user);
+    console.log(user);
+    
     next()
 }
 

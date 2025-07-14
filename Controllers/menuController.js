@@ -1,9 +1,9 @@
-const menuItem = require("../Models/menuItem")
+const foodSchema = require("../Models/menuItem")
 
 const getAllFoods = async (req, res, next)=>{
 
     try {
-        const foods = await menuItem.find()
+        const foods = await foodSchema.find()
         // res.json(foods)
         if(!foods){
             return res.status(404).json({
@@ -31,7 +31,7 @@ const getAllFoods = async (req, res, next)=>{
 }
 
 const postFood = async (req, res, next)=>{
-    const {name, description, price, category, image} = req.body
+    // const {name, description, price, category, image} = req.body
     try {
         
         if (!req.file || !req.file.path) {
@@ -40,7 +40,7 @@ const postFood = async (req, res, next)=>{
                 message: "Image upload failed or missing",
             });
         }
-        const food = await menuItem.create({...req.body, image: req.file.path, createdBy: req.user.id})
+        const food = await foodSchema.create({...req.body, image: req.file.path, createdBy: req.user.id})
 
         if(!food){
             return res.status(404).json({
@@ -64,7 +64,7 @@ const postFood = async (req, res, next)=>{
 const getFoodById = async (req, res, next)=>{
     const {id} = req.params
     try {
-        const food = await menuItem.findById(id)
+        const food = await foodSchema.findById(id)
         if(!food){
             return res.status(404).json({
                 status: "error",
@@ -86,7 +86,7 @@ const getFoodById = async (req, res, next)=>{
 const getFoodByIdAndDelete = async (req, res, next)=>{
     const {id} = req.params
     try {
-        const food = await menuItem.findByIdAndDelete(id, u_id)
+        const food = await foodSchema.findByIdAndDelete(id, u_id)
         if(!food){
             return res.status(404).json({
                 status: "error",

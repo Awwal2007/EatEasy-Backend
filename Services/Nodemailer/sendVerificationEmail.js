@@ -1,3 +1,4 @@
+const dotenv = require("dotenv")
 const transporter = require('./transporter');
 
 const sendVerificationEmail = (email, userFirstName, token)=>{

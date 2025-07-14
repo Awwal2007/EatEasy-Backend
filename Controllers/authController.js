@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken")
 const userModel = require("../Models/user")
 const sendVerificationEmail = require("../Services/Nodemailer/sendVerificationEmail")
 const generateRandomString = require("../Utils/generateRandomStrings")
-const { MongooseError } = require("mongoose")
 
 //Signup
 const signup = async (req, res, next)=>{
@@ -30,15 +29,12 @@ const signup = async (req, res, next)=>{
 
         res.status(202).json({
             status: "success",
-            message: "Sign up successful. Check your email to verify your account"
+            message: "Sign up successful. Check your email to verify your account",
+            user
         })
 
     } catch (error) {
         console.log(error)
-        const err = new MongooseError(message)
-        {err && res.status(401).json({
-            status: "error",
-            message: err.message})}
         next(error)      
     }
 }
@@ -64,6 +60,7 @@ const verifyEmail = async (req, res, next)=>{
             }),
             await userModel.findOneAndDelete({verificationToken: token})
         }
+
         await userModel.findByIdAndUpdate(user._id, {verificationExp: null, verificationToken: null, isVerified: true})
         res.status(200).json({
             status: "success",
@@ -77,44 +74,60 @@ const verifyEmail = async (req, res, next)=>{
 }
 
 //Login
-const login = async (req, res, next)=>{
-
-    const {email, password} = req.body
+const login = async (req, res, next) => {
+    const { email, password } = req.body;
 
     try {
-        const user = await userModel.findOne({email})
-        if(!user){
-            return res.status(404).json({
+        if (!email || !password) {
+            return res.status(400).json({
                 status: "error",
-                message: "password or email is incorrect"
-            })
-        }
-        
-        // if (!password || !user?.password) {
-        //     return res.status(400).json({ error: "Missing credentials." });
-        // }
-        const passwordCorrect = await bcrypt.compare(password, user.password)
-        if(!passwordCorrect){
-            return res.status(404).json({
-                status: "error",
-                message: "password or email is incorrect"
-            })
+                message: "Email and password are required"
+            });
         }
 
-        const accessToken = jwt.sign({id: user._id, email: user.email}, process.env.jwt_secret, {
-            expiresIn: process.env.jwt_exp
-        })        
+        const user = await userModel.findOne({ email });
+        if (!user || !user.password) {
+            return res.status(401).json({
+                status: "error",
+                message: "Email or password is incorrect"
+            });
+        }
+
+        const passwordCorrect = await bcrypt.compare(password, user.password);
+        if (!passwordCorrect) {
+            return res.status(401).json({
+                status: "error",
+                message: "Email or password is incorrect"
+            });
+        }
+
+        const accessToken = jwt.sign(
+            { id: user._id, name: user.name, email: user.email },
+            process.env.jwt_secret,
+            { expiresIn: process.env.jwt_exp }
+        );
+
+        const userData = {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            isVerified: user.isVerified,
+            role: user.role
+        };
 
         res.status(200).json({
             status: "success",
-            message: "Login successfully. Welcome back",
-            accessToken
-        })
+            message: "Login successful. Welcome back!",
+            accessToken,
+            isVerified : user?.isVerified,
+            user: userData
+        });
     } catch (error) {
-        console.log(error);  
-        next(error) 
+        console.log(error);
+        next(error);
     }
-}
+};
+
 
 module.exports = {
     signup,

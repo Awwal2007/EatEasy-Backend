@@ -1,8 +1,9 @@
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
-const sellerModel = require("../Models/seller")
+// const sellerModel = require("../Models/seller")
 const sendVerificationEmail = require("../Services/Nodemailer/sendVerificationEmail")
 const generateRandomString = require("../Utils/generateRandomStrings")
+const userModel = require("../Models/user")
 
 const signup = async (req, res, next)=>{
     const {password, email, name} = req.body
@@ -14,7 +15,7 @@ const signup = async (req, res, next)=>{
         const token = generateRandomString(8)
         const verificationExp = Date.now() + 300000
 
-        const user = sellerModel.create({...req.body, password: hashedPassword, verificationToken: token, verificationExp})
+        const user = userModel.create({...req.body, password: hashedPassword, role: "seller", verificationToken: token, verificationExp})
 
         if(!user){
            return res.status(404).json({
@@ -33,10 +34,6 @@ const signup = async (req, res, next)=>{
 
     } catch (error) {
         console.log(error)
-        const err = new MongooseError(message)
-        {err && res.status(401).json({
-            status: "error",
-            message: err.message})}
         next(error)      
     }
 }
@@ -46,7 +43,7 @@ const verifyEmail = async (req, res, next)=>{
     const {token} = req.params
     try {
         // find the user with the verification token
-        const user = await sellerModel.findOne({verificationToken: token})
+        const user = await userModel.findOne({verificationToken: token, role: "seller"})
         if (!user) {
             return res.status(400).json({
                 status: "error",
@@ -80,7 +77,7 @@ const login = async (req, res, next)=>{
     const {email, password} = req.body
 
     try {
-        const user = await sellerModel.findOne({email})
+        const user = await userModel.findOne({email, role: "seller"})
         if(!user){
             return res.status(404).json({
                 status: "error",
@@ -114,8 +111,53 @@ const login = async (req, res, next)=>{
     }
 }
 
+const getAllSellers = async (req, res, next)=>{
+    try {
+        const users = await userModel.find({role: "seller"}) // return all users
+        if(!users){
+            return res.status(404).json({
+                status: "error",
+                message: "Users not found"
+            })
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: "users fetched!",
+            users
+        })
+    } catch (error) {
+        console.log(error)
+        next(error)
+    }
+}
+
+const getSellerById = async (req, res, next)=>{
+    const {id} = req.params
+    try {
+        const user = await userModel.findById({id})
+        if(!user){
+            return res.status(404).json({
+                status: "error",
+                message: "user not found"
+            })
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: "user fetched!",
+            user
+        })
+
+    } catch (error) {
+        console.log(error)
+        next(error)
+    }
+}
 module.exports = {
     signup,
     verifyEmail,
-    login
+    login,
+    getSellerById,
+    getAllSellers
 }

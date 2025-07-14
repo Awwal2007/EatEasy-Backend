@@ -25,10 +25,6 @@ const createPayment = async (req, res, next)=>{
         })
     } catch (error) {
         console.log(error);
-        res.status(500).json({
-            status: "error",
-            message: "Payment Failed"
-        })
         next(error)
     }
 }
@@ -42,8 +38,7 @@ const webHook = async (req, res, next)=>{
         event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     } catch (error) {
         console.log(error)
-        next(error);       
-        return res.status(400).send(`Webhook Error: ${error.message}`)
+        next(error); 
     }
 
      if (event.type === 'payment_intent.succeeded') {

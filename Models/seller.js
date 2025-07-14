@@ -106,7 +106,7 @@ const sellerSchema = new mongoose.Schema({
   },
   verificationToken: String,
 
-  verificationTokenExp: Date,
+  verificationExp: Date,
   
   // Ratings and Stats
   rating: {
