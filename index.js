@@ -2,7 +2,8 @@ const express = require('express');
 const app = express();
 const cors = require("cors");
 const morgan = require("morgan");
-
+const dotenv = require('dotenv')
+dotenv.config()
 
 require("./Config/connectToDb");
 require("./Services/Nodemailer/transporter");
@@ -17,8 +18,10 @@ const cartRouter = require('./Routes/cartRouter');
 const isLoggedIn = require('./Middlewares/isLoggedIn');
 const wishListRouter = require('./Routes/wishListRouter');
 
+const clientDomain = process.env.client_domain
+
 app.use(cors({
-    origin: 'http://localhost:5173'
+    origin:['http://localhost:5173', clientDomain]
 }))
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
