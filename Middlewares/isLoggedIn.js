@@ -30,7 +30,7 @@ const isLoggedIn =  async (req, res, next)=>{
     // console.log(user);
     // console.log(decoded);
     console.log(req.user);
-    console.log(user);
+    console.log(user.id);
     
     next()
 }

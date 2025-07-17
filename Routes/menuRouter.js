@@ -6,6 +6,7 @@ const isLoggedIn = require("../Middlewares/isLoggedIn")
 const uploadProductImage = require("../Config/multer")
 const isSeller = require("../Middlewares/isSeller")
 
+
 menuRouter.get("/", getAllFoods)
 menuRouter.get("/:id", getFoodById)
 menuRouter.delete("/:id", isLoggedIn, isSeller, getFoodByIdAndDelete )

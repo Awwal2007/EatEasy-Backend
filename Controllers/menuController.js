@@ -1,9 +1,18 @@
 const foodSchema = require("../Models/menuItem")
 
 const getAllFoods = async (req, res, next)=>{
-
+    const { category } = req.query;
+    console.log(category);
+    
     try {
-        const foods = await foodSchema.find()
+         // Build query object
+        const filter = {};
+        if (category) {
+            filter.category = category;
+        }
+
+        const foods = await foodSchema.find(filter).sort({ createdAt: -1 }).populate('user', 'restaurantName');
+        
         // res.json(foods)
         if(!foods){
             return res.status(404).json({
@@ -13,9 +22,10 @@ const getAllFoods = async (req, res, next)=>{
         }
 
         if(foods.length === 0){
-            return res.status(300).json({
-                status: "null",
-                message: "There is no food in the database"
+            return res.status(200).json({
+                status: "success",
+                message: "There is no food in the database",
+                foods: []
             })
         }
 
@@ -40,7 +50,7 @@ const postFood = async (req, res, next)=>{
                 message: "Image upload failed or missing",
             });
         }
-        const food = await foodSchema.create({...req.body, image: req.file.path, createdBy: req.user.id})
+        const food = await (await foodSchema.create({...req.body, image: req.file.path, createdBy: req.user.id}))
 
         if(!food){
             return res.status(404).json({
@@ -64,7 +74,7 @@ const postFood = async (req, res, next)=>{
 const getFoodById = async (req, res, next)=>{
     const {id} = req.params
     try {
-        const food = await foodSchema.findById(id)
+        const food = await foodSchema.findById(id).populate('user', 'restaurantName')
         if(!food){
             return res.status(404).json({
                 status: "error",

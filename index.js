@@ -15,8 +15,11 @@ const paymentRouter = require('./Routes/paymentRouter');
 const sellerRouter = require('./Routes/sellerRouter');
 const cartRouter = require('./Routes/cartRouter');
 const isLoggedIn = require('./Middlewares/isLoggedIn');
+const wishListRouter = require('./Routes/wishListRouter');
 
-app.use(cors())
+app.use(cors({
+    origin: 'http://localhost:5173'
+}))
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(morgan("dev"))
@@ -34,10 +37,15 @@ app.use("/api/order", orderRouter)
 app.use("/api/payment", paymentRouter)
 app.use("/api/seller", sellerRouter)
 app.use("/api/cart", cartRouter)
+app.use("/api/wishList", wishListRouter)
 app.use(express.json())
 
 app.all("/{*any}", (req, res) => {
     res.json(`${req.method} ${req.originalUrl} is not an endpoint on this server.`)
 })
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
 
 app.use(errorHandler);

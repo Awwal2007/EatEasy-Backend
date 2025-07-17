@@ -23,12 +23,19 @@ const getAllUsers = async (req, res)=>{
 const getUserById = async (req, res, next)=>{
     const {id} = req.params
     try {
-        const user = await userModel.findById(id)
-        if(!user){
+        const findUser = await userModel.findById(id)
+        if(!findUser){
             return res.status(404).json({
                 status: "error",
                 message: "user not found"
             })
+        }
+
+        const user = {
+            name: findUser.name,
+            email: findUser.email,
+            id: findUser._id,
+            image: findUser.authImage,
         }
 
         res.status(200).json({
@@ -68,27 +75,43 @@ const getUserByQuery = async (req, res, next)=>{
     }
 }
 
-const updateUser = async (req, res, next)=>{
-    const {id} = req.params
+const updateUser = async (req, res, next) => {
+    const { id } = req.params;
+    
     try {
-        const updatedUser = await userModel.findByIdAndUpdate(id, req.body)
-        if(!updatedUser){
+        if (!req.file || !req.file.path) {
             return res.status(400).json({
                 status: "error",
-                message: "user not updated"
-            })
+                message: "Image upload failed or missing",
+            });
+        }
+
+        const updatedFields = {
+            ...req.body,              // Spread all fields from form
+            authImage: req.file.path  // Add uploaded image path
+        };
+
+        const updatedUser = await userModel.findByIdAndUpdate(id, updatedFields, { new: true });
+
+        if (!updatedUser) {
+            return res.status(400).json({
+                status: "error",
+                message: "User not updated",
+            });
         }
 
         res.status(200).json({
             status: 'success',
-            message: "user fetched!",
+            message: "User updated!",
             user: updatedUser
-        })
+        });
     } catch (error) {
-        console.log(error)
-        next(error)
+        console.error(error);
+        next(error);
     }
-} 
+};
+
+
 
 const deleteUser = async (req, res, next)=>{
     const {id} = req.params

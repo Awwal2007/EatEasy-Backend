@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
-const cartSchema = new mongoose.Schema({
+const wishListSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String },
     price: { type: Number, required: true },
-    category: { type: String, },
+    category: { type: String,  },
     image: { type: String, required: true },
     rating: { type: Number, required: true,  default: 1, max: 5, unique: false },
     user: {
@@ -19,6 +19,6 @@ const cartSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-const cartModel = mongoose.model('Cart', cartSchema);
+const wishList = mongoose.model('wishList', wishListSchema);
 
-module.exports = cartModel
+module.exports = wishList

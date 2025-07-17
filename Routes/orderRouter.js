@@ -7,7 +7,7 @@ const isLoggedIn = require("../Middlewares/isLoggedIn")
 
 orderRouter.get("/", isAdmin, isLoggedIn, getAllOrders )
 orderRouter.post("/", isLoggedIn, createOrder)
-orderRouter.get("/my-orders", getMyOrders, isLoggedIn)
+orderRouter.get("/my-orders", isLoggedIn, getMyOrders)
 
 
 module.exports = orderRouter

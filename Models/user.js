@@ -15,9 +15,9 @@ const userSchema = new mongoose.Schema({
     required: true,
     minLength: 6
   },
-  image: {
+  authImage: {
     type: String,
-    // required: true
+    required: true
   },
   role: {
     type: String,
@@ -68,21 +68,17 @@ const userSchema = new mongoose.Schema({
   deliveryRadius: {
     type: Number,
     // required: [true, 'Please specify delivery radius'],
-    min: 1,
-    max: 20,
-    default: 5 // miles
+
   },
   
   // Business Hours
   openingTime: {
     type: String,
     // required: [true, 'Please specify opening time'],
-    default: '09:00'
   },
   closingTime: {
     type: String,
     // required: [true, 'Please specify closing time'],
-    default: '21:00'
   },
   
   
@@ -102,17 +98,14 @@ const userSchema = new mongoose.Schema({
   // Ratings and Stats
   rating: {
     type: Number,
-    default: 4.5,
     min: [1, 'Rating must be at least 1'],
     max: [5, 'Rating must not exceed 5']
   },
   ratingCount: {
     type: Number,
-    default: 0
   },
   ordersCompleted: {
     type: Number,
-    default: 0
   },
   
   // Timestamps

@@ -3,7 +3,8 @@ const Cart = require('../Models/cart');
 
 const getCart = async (req, res, next) => {
  try {
-    const cartList = await Cart.find(req.query);
+    const {userId} = req.params;
+    const cartList = await Cart.find({user: userId});
     if(!cartList){
         res.status(404).json({
             status: "error",
@@ -21,10 +22,8 @@ const getCart = async (req, res, next) => {
 const addToCart = async (req, res, next) => {
     
  try {
-    console.log(req.user);
     
-
-    const cartItem = await Cart.find({productId:req.body.productId})
+    const cartItem = await Cart.find({productId: req.body.productId, user: req.params.userId})
 
     if(cartItem.length === 0){
         let cartList = new Cart({
@@ -90,6 +89,29 @@ const removeCartItem = async (req, res, next) => {
     next(error)
  }  
 };
+const removeCartItemsAfterOrdered = async (req, res, next) => {
+  try {
+    const deletedCartItems = await Cart.deleteMany({ user: req.user.id });
+    console.log(req.user.id)
+
+    if (deletedCartItems.deletedCount === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "No cart items found for this user",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "All cart items deleted after order",
+      deletedCount: deletedCartItems.deletedCount,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
 
 const updateCartItem = async (req, res, next) => {
     
@@ -123,4 +145,4 @@ const updateCartItem = async (req, res, next) => {
  }  
 };
 
-module.exports = { addToCart, getCart, removeCartItem, updateCartItem };
+module.exports = { addToCart, getCart, removeCartItem, updateCartItem, removeCartItemsAfterOrdered };

@@ -4,10 +4,12 @@ const {signup, login, verifyEmail, getSellerById} = require("../Controllers/sell
 const isVerified = require("../Middlewares/isVerified")
 const isLoggedIn = require("../Middlewares/isLoggedIn")
 
-sellerRouter.post("/signup", signup)
-sellerRouter.post("/login",  login, isVerified)
+const uploadAuthImage = require("../Config/authMulter")
+
+sellerRouter.post("/signup", uploadAuthImage.single("authImage"), signup)
+sellerRouter.post("/login", login)
 sellerRouter.post("/verify/:token", verifyEmail)
 // sellerRouter.post("/getAllSeller",  login, isVerified)
-sellerRouter.post("/:id", getSellerById, isVerified, isLoggedIn )
+sellerRouter.post("/:id",  isLoggedIn, getSellerById )
 
 module.exports = sellerRouter

@@ -22,7 +22,7 @@ const createOrder = async (req, res, next)=>{
     }
 }
 
-const getAllOrders = async (req, res, next)=>{
+const getAllOrders = async (req, res, next)=>{    
     try {
         const orders = await orderModel.find()
         if(!orders){
@@ -52,8 +52,7 @@ const getAllOrders = async (req, res, next)=>{
 
 const getMyOrders = async(req, res, next)=>{
     try {
-        const myOrders = await orderModel.find({user: req.user}).populate("items.menuItem");
-        res.json(myOrders)
+        const myOrders = await orderModel.find({user: req.user});
         if(!myOrders){
             res.status(404).json({
                 status: "error",

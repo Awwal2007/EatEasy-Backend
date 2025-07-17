@@ -7,15 +7,20 @@ const userModel = require("../Models/user")
 
 const signup = async (req, res, next)=>{
     const {password, email, name} = req.body
-
     try {
+        if (!req.file || !req.file.path) {
+            return res.status(400).json({
+                status: "error",
+                message: "Image upload failed or missing",
+            });
+        }
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
 
         const token = generateRandomString(8)
         const verificationExp = Date.now() + 300000
 
-        const user = userModel.create({...req.body, password: hashedPassword, role: "seller", verificationToken: token, verificationExp})
+        const user = userModel.create({...req.body, password: hashedPassword, role: "seller", verificationToken: token, verificationExp, authImage: req.file.path})
 
         if(!user){
            return res.status(404).json({
@@ -98,12 +103,24 @@ const login = async (req, res, next)=>{
 
         const accessToken = jwt.sign({id: user._id, email: user.email}, process.env.jwt_secret, {
             expiresIn: process.env.jwt_exp
-        })        
+        }) 
+        
+        const seller = {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            profilePicture: user.profilePicture,
+            isVerified: user.isVerified,
+            image: user.image,
+            role: user.role,
+            image: user.authImage, // Use authImage from the updated user model
+        }
 
         res.status(200).json({
             status: "success",
             message: "Login successfully. Welcome back",
-            accessToken
+            accessToken,
+            seller
         })
     } catch (error) {
         console.log(error);  

@@ -4,12 +4,13 @@ const menuItemSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String },
   price: { type: Number, required: true },
-  category: { type: String, enum:["chew", "swallow"], default: "chew" },
+  category: { type: String,  },
   image: { type: String, required: true },
   rating: { type: Number, required: true,  default: 1, max: 5},
+  prepTime: {type: String},
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "user",
     required: true
   },
 }, { timestamps: true });
