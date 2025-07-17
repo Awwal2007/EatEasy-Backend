@@ -20,9 +20,7 @@ const wishListRouter = require('./Routes/wishListRouter');
 
 const clientDomain = process.env.client_domain
 
-app.use(cors({
-    origin:['http://localhost:5173', clientDomain]
-}))
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(morgan("dev"))
