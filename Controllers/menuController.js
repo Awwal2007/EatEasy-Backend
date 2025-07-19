@@ -50,7 +50,7 @@ const postFood = async (req, res, next)=>{
                 message: "Image upload failed or missing",
             });
         }
-        const food = await (await foodSchema.create({...req.body, image: req.file.path, createdBy: req.user.id}))
+        const food = await (await foodSchema.create({...req.body, image: req.file.path, user: req.user.id}))
 
         if(!food){
             return res.status(404).json({
@@ -113,9 +113,77 @@ const getFoodByIdAndDelete = async (req, res, next)=>{
     }
 }
 
+const getAllFoodsByAdmin = async (req, res, next)=>{
+    
+    try {
+        const sellerId = req.user.id
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 6;
+        const skip = (page - 1) * limit;
+
+        const search = req.query.search || '';
+        const category = req.query.category || '';
+
+        // Build the base filter
+        const filter = {
+            user: sellerId,
+        };
+
+        // Add search condition (by title or description)
+        if (search) {
+            filter.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } },
+            ];
+        }
+
+        // Add category filter
+        if (category) {
+            filter.category = category;
+        }
+
+        const total = await foodSchema.countDocuments(filter);
+
+        const foods = await foodSchema.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean();
+        
+        // res.json(foods)
+        if(!foods){
+            return res.status(404).json({
+                status: "error",
+                message: "foods not found"
+            })
+        }
+
+        if(foods.length === 0){
+            return res.status(200).json({
+                status: "success",
+                message: "There is no food with this user in the database",
+                foods: []
+            })
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: "foods fetched!",
+            foods,
+            total,
+            page,
+            limit
+        })
+    } catch (error) {
+        console.log(error);
+        next(error)       
+    }
+}
+
 module.exports = {
     getAllFoods,
     getFoodById,
     getFoodByIdAndDelete,
-    postFood
+    postFood,
+    getAllFoodsByAdmin
 }

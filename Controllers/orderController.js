@@ -22,7 +22,7 @@ const createOrder = async (req, res, next)=>{
     }
 }
 
-const getAllOrders = async (req, res, next)=>{    
+const getAllOrders = async (req, res, next)=>{
     try {
         const orders = await orderModel.find()
         if(!orders){
@@ -79,10 +79,52 @@ const getMyOrders = async(req, res, next)=>{
     }
 }
 
+const getSellerOrders = async (req, res, next) => {
+  try {
+    const sellerId = req.user.id;
+    console.log(sellerId);
+    
+    if(!sellerId){
+        return res.status(404).json({
+            status: "error",
+            message: "user id not found or login expired"
+        })
+    }
+
+    const orders = await orderModel.find({
+      'items.seller': sellerId, // match any item from this seller
+    }).populate('user', 'name email') // populate customer info if needed
+      .sort({ createdAt: -1 });
+
+    if(!orders){
+        return res.status(404).json({
+            status: "error",
+            message: "No order available"
+        })
+    }
+
+    // Filter items to show only seller's items in each order
+    const filteredOrders = orders.map(order => {
+      const sellerItems = order.items.filter(item => item.user.equals(sellerId));
+      return {
+        ...order.toObject(),
+        items: sellerItems,
+      };
+    });
+
+    res.status(200).json(filteredOrders);
+  } catch (err) {
+    console.error('Error fetching seller orders:', err);
+    next(err)
+  }
+};
+
+
 
 module.exports = {
     createOrder,
     getAllOrders,
-    getMyOrders
+    getMyOrders,
+    getSellerOrders
 }
 

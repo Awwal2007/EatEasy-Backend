@@ -12,6 +12,11 @@ const cartSchema = new mongoose.Schema({
         ref: "user",
         required: true
     },
+    seller: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+        required: true
+    },
     quantity: { type: Number, default: 1 },
     subTotal: { type: Number, default: 0 },
     productId: {type: String, required: true},

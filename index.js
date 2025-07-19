@@ -44,9 +44,9 @@ app.use(express.json())
 app.all("/{*any}", (req, res) => {
     res.json(`${req.method} ${req.originalUrl} is not an endpoint on this server.`)
 })
-app.use((req, res, next) => {
-  res.set('Cache-Control', 'no-store');
-  next();
-});
+// app.use((req, res, next) => {
+//   res.set('Cache-Control', 'no-store');
+//   next();
+// });
 
 app.use(errorHandler);

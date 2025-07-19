@@ -33,7 +33,8 @@ const addToCart = async (req, res, next) => {
             category: req.body.category,
             image: req.body.image,
             rating: req.body.rating,
-            user: req.body.createdBy,        
+            user: req.body.user,        
+            seller: req.body.seller,        
             productId: req.body.productId,
             quantity: req.body.quantity || 1,
             subTotal: req.body.subTotal || 0,
@@ -89,6 +90,7 @@ const removeCartItem = async (req, res, next) => {
     next(error)
  }  
 };
+
 const removeCartItemsAfterOrdered = async (req, res, next) => {
   try {
     const deletedCartItems = await Cart.deleteMany({ user: req.user.id });
